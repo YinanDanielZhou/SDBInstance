@@ -1,0 +1,11 @@
+node_modules/
+dist/
+out/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+.env
+.eslintcache
+output_logs/output_*.log
+exp_result_low_api_rate/
