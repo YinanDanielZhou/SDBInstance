@@ -60,41 +60,46 @@ let all_mp_latencies : string[] = [];
     let idleTime = 10   // add artifical idle time to prevent API rate limiting
 
 
-    const deployQuantity = 50
-    performance.mark("deployExpStart")
-    await runDeployTestBatch(deployQuantity, idleTime)
-    performance.mark("deployExpDoneMemPool")
-    let expDuration = Number(getMeasurement("deployExp", "deployExpStart", "deployExpDoneMemPool"))
-    console.log("Experiment duration: ", expDuration.toString(), " ms")
-
-
-    // const updateQuantity = 1
-    // const SDOsToBeUpdated = await getAllSDOs()
-    // const SDOsToBeUpdated = ["02c23312ef"]
-    
-    // performance.mark("updateExpStart")
-    // await runUpdateTestBatch(SDOsToBeUpdated, idleTime)
-    // performance.mark("updateExpDoneMemPool")
-    // let expDuration = Number(getMeasurement("updateExp", "updateExpStart", "updateExpDoneMemPool"))
+    // const deployQuantity = 10
+    // performance.mark("deployExpStart")
+    // await runDeployTestBatch(deployQuantity, idleTime)
+    // performance.mark("deployExpDoneMemPool")
+    // let expDuration = Number(getMeasurement("deployExp", "deployExpStart", "deployExpDoneMemPool"))
     // console.log("Experiment duration: ", expDuration.toString(), " ms")
 
-    // const whichPS = parseInt(process.argv[2])
-    // const concurrency_level = "single"
-    // const latencyLCFilePath = `./exp_result/latency_${concurrency_level}/process_${whichPS}_LC.txt`
-    // const latencyMPFilePath = `./exp_result/latency_${concurrency_level}/process_${whichPS}_MP.txt`
-    // const throughputFilePath = `./exp_result/throughput_${concurrency_level}/process_${whichPS}.txt`
 
-    // try {
-    //     await fs.appendFile(latencyLCFilePath, all_local_latencies.toString()+'\n');
-    //     await fs.appendFile(latencyMPFilePath, all_mp_latencies.toString()+'\n');
-    //     await fs.appendFile(throughputFilePath, updateQuantity.toString()+','+expDuration.toString()+'\n');
-    //     console.log('Data successfully appended to file.');
-    // } catch (err) {
-    //     console.error('Error appending data to file:', err);
-    // }
+    const updateQuantity = 250
+    // const SDOsToBeUpdated = await getSomeSDOs(updateQuantity)
+    let threadNum = parseInt(process.argv[2])
+    // const SDOsToBeUpdated = (await getAllSDOs()).slice(0, updateQuantity)
+    const SDOsToBeUpdated = (await getAllSDOs()).slice(threadNum * updateQuantity, (threadNum + 1) * updateQuantity )
+
+    
+    performance.mark("updateExpStart")
+    await runUpdateTestBatch(SDOsToBeUpdated, idleTime)
+    performance.mark("updateExpDoneMemPool")
+    let expDuration = Number(getMeasurement("updateExp", "updateExpStart", "updateExpDoneMemPool"))
+    console.log("Experiment duration: ", expDuration.toString(), " ms")
+
+    const whichPS = parseInt(process.argv[2])
+    const concurrency_level = "quad"
+    const latencyLCFilePath = `./exp_result/${concurrency_level}/latency/process_${whichPS}_LC.txt`
+    const latencyMPFilePath = `./exp_result/${concurrency_level}/latency/process_${whichPS}_MP.txt`
+    const throughputFilePath = `./exp_result/${concurrency_level}/throughput/process_${whichPS}.txt`
+
+    try {
+        await fs.appendFile(latencyLCFilePath, all_local_latencies.toString()+'\n');
+        await fs.appendFile(latencyMPFilePath, all_mp_latencies.toString()+'\n');
+        await fs.appendFile(throughputFilePath, updateQuantity.toString()+','+expDuration.toString()+'\n');
+        console.log('Data successfully appended to file.');
+    } catch (err) {
+        console.error('Error appending data to file:', err);
+    }
+
 
 
     // const SDOsToBeDeleted = await getAllSDOs()
+    // const SDOsToBeDeleted = await getSomeSDOs(1)
     // console.log(SDOsToBeDeleted)
     // await runDeleteTestBatch(SDOsToBeDeleted, idleTime)
 
